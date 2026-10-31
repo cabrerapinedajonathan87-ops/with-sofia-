@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para mi amada Sofía ♥ | Jonatan</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Montserrat:wght@300;400;600;700&family=Playfair+Display:ital,wght@0,600;1,400&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #0d0714;
+            color: #fce7f3;
+            overflow-x: hidden;
+        }
+        
+        .font-serif-title {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .font-cursive {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        /* Gradient Text */
+        .text-gradient-gold {
+            background: linear-gradient(135deg, #fef08a 0%, #f59e0b 50%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .text-gradient-rose {
+            background: linear-gradient(135deg, #f472b6 0%, #fb7185 50%, #e11d48 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Glassmorphism Card Style */
+        .glass-card {
+            background: rgba(26, 16, 37, 0.75);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(244, 114, 182, 0.25);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+        }
+
+        /* 3D Card Flip Animation */
+        .flip-card {
+            perspective: 1000px;
+            height: 320px;
+        }
+
+        .flip-card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            transition: transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .flip-card.flipped .flip-card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .flip-card-front, .flip-card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            -webkit-backface-visibility: hidden;
+            backface-visibility: hidden;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .flip-card-front {
+            background: linear-gradient(145deg, rgba(30, 15, 45, 0.9), rgba(50, 20, 60, 0.95));
+            border: 1px solid rgba(251, 113, 133, 0.3);
+            box-shadow: 0 10px 25px -5px rgba(225, 29, 72, 0.2);
+        }
+
+        .flip-card-back {
+            background: linear-gradient(145deg, rgba(45, 18, 50, 0.95), rgba(20, 10, 30, 0.98));
+            border: 1px solid rgba(245, 158, 11, 0.4);
+            transform: rotateY(180deg);
+            box-shadow: 0 10px 25px -5px rgba(245, 158, 11, 0.2);
+        }
+
+        /* Canvas Overlay */
+        #bgCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .content-layer {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Soft Glow Effects */
+        .glow-button {
+            box-shadow: 0 0 20px rgba(225, 29, 72, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        .glow-button:hover {
+            box-shadow: 0 0 35px rgba(225, 29, 72, 0.8);
+            transform: translateY(-2px);
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0d0714;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #831843;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-rose-500 selection:text-white">
+
+    <!-- Canvas para animación de estrellas y corazones flotantes -->
+    <canvas id="bgCanvas"></canvas>
+
+    <!-- Contenido Principal -->
+    <div class="content-layer min-h-screen flex flex-col items-center justify-between p-4 sm:p-8 max-w-5xl mx-auto w-full">
+
+        <!-- Header / Barra Superior con Música -->
+        <header class="w-full flex justify-between items-center py-4 px-6 glass-card rounded-2xl mb-8">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-heart text-rose-500 text-xl animate-pulse"></i>
+                <span class="font-cursive text-2xl text-rose-300">Jonatan & Sofía</span>
+            </div>
+            <button id="musicBtn" class="flex items-center space-x-2 bg-rose-950/60 hover:bg-rose-900/80 text-rose-200 px-4 py-2 rounded-full border border-rose-500/30 transition-all text-sm">
+                <i id="musicIcon" class="fa-solid fa-music text-rose-400"></i>
+                <span id="musicText">Música de fondo</span>
+            </button>
+        </header>
+
+        <!-- PANTALLA 1: Bienvenida e Introducción -->
+        <section id="heroSection" class="w-full text-center my-auto py-12 flex flex-col items-center justify-center transition-all duration-1000">
+            <div class="inline-block p-3 rounded-full bg-rose-500/10 border border-rose-500/20 mb-6 animate-bounce">
+                <i class="fa-solid fa-envelope-open-text text-4xl text-rose-400"></i>
+            </div>
+            <h1 class="font-cursive text-6xl sm:text-7xl md:text-8xl text-gradient-rose mb-4">Para mi amada Sofía</h1>
+            <p class="font-serif-title italic text-xl sm:text-2xl text-rose-200/90 max-w-2xl mb-8">
+                "Un espacio creado con código, fe y amor sincero para recordarte lo mucho que vales para mí."
+            </p>
+            <p class="text-sm text-rose-300/70 mb-10 max-w-lg">
+                Diseñé esta carta interactiva para entregarte mis promesas y los valores que guían mi corazón hacia ti.
+            </p>
+            <button id="startBtn" class="glow-button bg-gradient-to-r from-rose-600 to-pink-600 text-white font-semibold text-lg px-8 py-4 rounded-full flex items-center space-x-3 cursor-pointer">
+                <span>Descubrir nuestra carta digital</span>
+                <i class="fa-solid fa-sparkles"></i>
+            </button>
+        </section>
+
+        <!-- PANTALLA 2: Contenido Principal y Tarjetas (Oculto al inicio) -->
+        <main id="mainContent" class="w-full hidden opacity-0 transition-all duration-1000 my-auto py-6">
+            
+            <div class="text-center mb-10">
+                <h2 class="font-cursive text-5xl text-gradient-gold mb-2">Nuestras Promesas y Compromisos</h2>
+                <p class="text-rose-200/80 text-sm sm:text-base font-serif-title italic">
+                    Toca o haz clic en cada tarjeta para descubrir las bases de nuestro amor
+                </p>
+            </div>
+
+            <!-- Grid de Tarjetas Interactivas de Compromiso -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+                
+                <!-- Tarjeta 1 -->
+                <div class="flip-card" onclick="flipCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center mb-4 border border-rose-400/30">
+                                <i class="fa-solid fa-hand-holding-heart text-2xl text-rose-400"></i>
+                            </div>
+                            <h3 class="font-serif-title font-semibold text-xl text-rose-200 mb-2">1. No dejar que el orgullo nos gane</h3>
+                            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-rose-900/60 text-rose-300 border border-rose-500/30">Efesios 4:32</span>
+                            <p class="text-xs text-rose-300/60 mt-6 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-rotate-right"></i> Haz clic para revelar
+                            </p>
+                        </div>
+                        <div class="flip-card-back">
+                            <i class="fa-solid fa-quote-left text-2xl text-amber-400/40 mb-2"></i>
+                            <p class="text-sm sm:text-base text-amber-100/90 font-serif-title leading-relaxed mb-4">
+                                "Elegimos pedir perdón, reconocer nuestros errores y buscar siempre la reconciliación antes de querer tener la razón."
+                            </p>
+                            <span class="text-xs text-amber-300 font-semibold uppercase tracking-wider">Compromiso de Humildad</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 2 -->
+                <div class="flip-card" onclick="flipCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mb-4 border border-amber-400/30">
+                                <i class="fa-solid fa-hourglass-half text-2xl text-amber-400"></i>
+                            </div>
+                            <h3 class="font-serif-title font-semibold text-xl text-rose-200 mb-2">2. Respetar los tiempos</h3>
+                            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-amber-900/60 text-amber-300 border border-amber-500/30">Eclesiastés 3:1-8</span>
+                            <p class="text-xs text-rose-300/60 mt-6 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-rotate-right"></i> Haz clic para revelar
+                            </p>
+                        </div>
+                        <div class="flip-card-back">
+                            <i class="fa-solid fa-quote-left text-2xl text-amber-400/40 mb-2"></i>
+                            <p class="text-sm sm:text-base text-amber-100/90 font-serif-title leading-relaxed mb-4">
+                                "Cada etapa de nuestro noviazgo es un don. Hay un tiempo para plantar, un tiempo para reír y un tiempo para edificar nuestra vida juntos."
+                            </p>
+                            <span class="text-xs text-amber-300 font-semibold uppercase tracking-wider">Compromiso de Paciencia</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 3 -->
+                <div class="flip-card" onclick="flipCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="w-12 h-12 rounded-full bg-rose-500/20 flex items-center justify-center mb-4 border border-rose-400/30">
+                                <i class="fa-solid fa-shield-heart text-2xl text-rose-400"></i>
+                            </div>
+                            <h3 class="font-serif-title font-semibold text-xl text-rose-200 mb-2">3. Proteger nuestro amor</h3>
+                            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-rose-900/60 text-rose-300 border border-rose-500/30">Cantares 8:7</span>
+                            <p class="text-xs text-rose-300/60 mt-6 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-rotate-right"></i> Haz clic para revelar
+                            </p>
+                        </div>
+                        <div class="flip-card-back">
+                            <i class="fa-solid fa-quote-left text-2xl text-amber-400/40 mb-2"></i>
+                            <p class="text-sm sm:text-base text-amber-100/90 font-serif-title leading-relaxed mb-4">
+                                "Elegimos cuidar lo que estamos construyendo. Que ningún problema, prueba o tentación sea más fuerte que la decisión de amarnos con fidelidad."
+                            </p>
+                            <span class="text-xs text-amber-300 font-semibold uppercase tracking-wider">Compromiso de Lealtad</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tarjeta 4 -->
+                <div class="flip-card" onclick="flipCard(this)">
+                    <div class="flip-card-inner">
+                        <div class="flip-card-front">
+                            <div class="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mb-4 border border-amber-400/30">
+                                <i class="fa-solid fa-church text-2xl text-amber-400"></i>
+                            </div>
+                            <h3 class="font-serif-title font-semibold text-xl text-rose-200 mb-2">4. Poner a Dios en el centro</h3>
+                            <span class="text-xs font-semibold px-3 py-1 rounded-full bg-amber-900/60 text-amber-300 border border-amber-500/30">Mateo 6:33</span>
+                            <p class="text-xs text-rose-300/60 mt-6 flex items-center gap-1">
+                                <i class="fa-solid fa-arrow-rotate-right"></i> Haz clic para revelar
+                            </p>
+                        </div>
+                        <div class="flip-card-back">
+                            <i class="fa-solid fa-quote-left text-2xl text-amber-400/40 mb-2"></i>
+                            <p class="text-sm sm:text-base text-amber-100/90 font-serif-title leading-relaxed mb-4">
+                                "Nos prometemos buscar a Dios juntos y orar el uno por el otro, siempre buscando Su divina guía para que bendiga nuestra relación."
+                            </p>
+                            <span class="text-xs text-amber-300 font-semibold uppercase tracking-wider">Compromiso Espiritual</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Botón Final Interactivo -->
+            <div class="text-center pt-4">
+                <button id="loveModalBtn" class="glow-button bg-gradient-to-r from-amber-500 via-rose-600 to-pink-600 text-white font-semibold text-lg px-8 py-4 rounded-full inline-flex items-center space-x-3 cursor-pointer">
+                    <i class="fa-solid fa-heart text-amber-200"></i>
+                    <span>Saber cuánto te amo</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- Footer -->
+        <footer class="w-full text-center py-4 text-xs text-rose-300/40 border-t border-rose-500/10 mt-8">
+            Desarrollado con dedicación por Jonatan para Sofía ♥ Guatemala
+        </footer>
+    </div>
+
+    <!-- Modal con mensaje romántico especial -->
+    <div id="loveModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-500">
+        <div class="glass-card max-w-lg w-full p-8 rounded-3xl border border-rose-500/40 text-center relative transform scale-95 transition-transform duration-500" id="modalContent">
+            <button id="closeModalBtn" class="absolute top-4 right-4 text-rose-300 hover:text-white text-xl p-2">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            
+            <div class="w-16 h-16 rounded-full bg-rose-500/20 border border-rose-400/40 flex items-center justify-center mx-auto mb-4 animate-pulse">
+                <i class="fa-solid fa-crown text-3xl text-rose-400"></i>
+            </div>
+
+            <h3 class="font-cursive text-4xl text-gradient-rose mb-3">Mi amada Sofía</h3>
+            
+            <div class="space-y-4 text-sm sm:text-base font-serif-title text-rose-100/90 leading-relaxed text-justify px-2 mb-6 max-h-60 overflow-y-auto pr-2">
+                <p>
+                    Sé que la vida nos presenta jornadas de mucho trabajo, estrés y momentos donde el tiempo parece escasear. Sin embargo, quiero que sepas que nada de eso disminuye la certeza de lo que siento por ti.
+                </p>
+                <p>
+                    Te amo con un amor sincero, maduro y paciente. Mi deseo es siempre ser un apoyo para tu vida, alguien en quien puedas confiar y descansar cuando te sientas cansada. 
+                </p>
+                <p>
+                    Estoy orgulloso de la mujer esforzada que eres. Ánimo en tus entregas y proyectos, tú puedes con todo. Aquí está mi corazón para ti, hoy y siempre.
+                </p>
+            </div>
+
+            <div class="pt-2 border-t border-rose-500/20">
+                <p class="font-cursive text-2xl text-gradient-gold">Con todo mi amor, Jonatan ♥</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Script de Lógica de Animación, Audio y FX -->
+    <script>
+        // --- 1. SISTEMA DE CANVASES DE CORAZONES Y ESTRELLAS ---
+        const canvas = document.getElementById('bgCanvas');
+        const ctx = canvas.getContext('2d');
+
+        let particles = [];
+        const numParticles = 45;
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = canvas.height + Math.random() * 100;
+                this.size = Math.random() * 14 + 8;
+                this.speedY = Math.random() * 1.2 + 0.5;
+                this.speedX = Math.sin(Math.random() * Math.PI) * 0.8;
+                this.opacity = Math.random() * 0.7 + 0.3;
+                this.type = Math.random() > 0.4 ? 'heart' : 'star';
+                this.color = this.type === 'heart' 
+                    ? `rgba(244, 114, 182, ${this.opacity})` 
+                    : `rgba(251, 191, 36, ${this.opacity})`;
+                this.rotation = Math.random() * Math.PI * 2;
+                this.rotSpeed = (Math.random() - 0.5) * 0.02;
+            }
+
+            update() {
+                this.y -= this.speedY;
+                this.x += Math.sin(this.y * 0.01) * 0.5;
+                this.rotation += this.rotSpeed;
+
+                if (this.y < -30) {
+                    this.reset();
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate(this.rotation);
+                ctx.fillStyle = this.color;
+
+                if (this.type === 'heart') {
+                    // Dibujar Corazón con curvas Bézier
+                    ctx.beginPath();
+                    const topCurveHeight = this.size * 0.3;
+                    ctx.moveTo(0, topCurveHeight);
+                    ctx.bezierCurveTo(0, 0, -this.size / 2, 0, -this.size / 2, topCurveHeight);
+                    ctx.bezierCurveTo(-this.size / 2, (this.size + topCurveHeight) / 2, 0, this.size, 0, this.size);
+                    ctx.bezierCurveTo(0, this.size, this.size / 2, (this.size + topCurveHeight) / 2, this.size / 2, topCurveHeight);
+                    ctx.bezierCurveTo(this.size / 2, 0, 0, 0, 0, topCurveHeight);
+                    ctx.closePath();
+                    ctx.fill();
+                } else {
+                    // Dibujar Estrella destello
+                    ctx.beginPath();
+                    ctx.arc(0, 0, this.size / 4, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+            }
+        }
+
+        for (let i = 0; i < numParticles; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            particles.forEach(p => {
+                p.update();
+                p.draw();
+            });
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        // --- 2. SINTETIZADOR DE MÚSICA Y SONIDO (Web Audio API) ---
+        let audioCtx = null;
+        let isPlaying = false;
+        let melodyInterval = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        // Tono suave para interacciones
+        function playTone(freq, type = 'sine', duration = 0.3) {
+            if (!audioCtx) return;
+            try {
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = type;
+                osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+                
+                gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                osc.start();
+                osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        // Melodía romántica ambiental
+        const notes = [261.63, 329.63, 392.00, 493.88, 523.25, 440.00, 349.23]; // Do, Mi, Sol, Si, Do, La, Fa
+        let noteIndex = 0;
+
+        function toggleMusic() {
+            initAudio();
+            const musicIcon = document.getElementById('musicIcon');
+            const musicText = document.getElementById('musicText');
+
+            if (isPlaying) {
+                clearInterval(melodyInterval);
+                isPlaying = false;
+                musicIcon.className = "fa-solid fa-music text-rose-400";
+                musicText.innerText = "Música pausada";
+            } else {
+                isPlaying = true;
+                musicIcon.className = "fa-solid fa-volume-high text-amber-400 animate-pulse";
+                musicText.innerText = "Música sonando";
+
+                melodyInterval = setInterval(() => {
+                    playTone(notes[noteIndex], 'sine', 1.2);
+                    noteIndex = (noteIndex + 1) % notes.length;
+                }, 800);
+            }
+        }
+
+        document.getElementById('musicBtn').addEventListener('click', toggleMusic);
+
+        // --- 3. NAVEGACIÓN Y INTERACTIVIDAD ---
+        const heroSection = document.getElementById('heroSection');
+        const mainContent = document.getElementById('mainContent');
+        const startBtn = document.getElementById('startBtn');
+
+        startBtn.addEventListener('click', () => {
+            initAudio();
+            playTone(523.25, 'sine', 0.5); // Sonido Relevar
+
+            heroSection.classList.add('opacity-0', 'scale-95');
+            setTimeout(() => {
+                heroSection.classList.add('hidden');
+                mainContent.classList.remove('hidden');
+                setTimeout(() => {
+                    mainContent.classList.remove('opacity-0');
+                    mainContent.classList.add('opacity-100');
+                }, 50);
+            }, 800);
+        });
+
+        // Función para voltear tarjetas 3D
+        function flipCard(cardElement) {
+            initAudio();
+            playTone(440.00, 'triangle', 0.2);
+            cardElement.classList.toggle('flipped');
+        }
+
+        // --- 4. MODAL ROMÁNTICO FINAL ---
+        const loveModalBtn = document.getElementById('loveModalBtn');
+        const loveModal = document.getElementById('loveModal');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const modalContent = document.getElementById('modalContent');
+
+        loveModalBtn.addEventListener('click', () => {
+            initAudio();
+            playTone(587.33, 'sine', 0.6); // Nota alta re
+
+            loveModal.classList.remove('hidden');
+            setTimeout(() => {
+                loveModal.classList.remove('opacity-0');
+                modalContent.classList.remove('scale-95');
+                modalContent.classList.add('scale-100');
+            }, 10);
+        });
+
+        function closeModal() {
+            modalContent.classList.remove('scale-100');
+            modalContent.classList.add('scale-95');
+            loveModal.classList.add('opacity-0');
+            setTimeout(() => {
+                loveModal.classList.add('hidden');
+            }, 500);
+        }
+
+        closeModalBtn.addEventListener('click', closeModal);
+        loveModal.addEventListener('click', (e) => {
+            if (e.target === loveModal) closeModal();
+        });
+    </script>
+</body>
+</html>
